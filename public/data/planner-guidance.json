@@ -1,0 +1,187 @@
+{
+  "library_meta": {
+    "title": "FILL Weekly Planner guidance library",
+    "content_status": "curated_adaptation",
+    "source_document": "FILL and ACTFL-aligned planning guidance",
+    "source_section_or_page": "Curated planning notes; verify against local approved sources before publishing"
+  },
+  "modes": [
+    {
+      "id": "novice",
+      "label": "Building a foundation",
+      "description": "Choose a focused, familiar task. Plan support that helps you understand and share meaning.",
+      "source_document": "FILL and ACTFL-aligned planning guidance",
+      "source_section_or_page": "Curated planning notes",
+      "content_status": "curated_adaptation"
+    },
+    {
+      "id": "developing",
+      "label": "Extending what you can do",
+      "description": "Use connected ideas and plan ways to ask follow-up questions, add detail, or clarify meaning.",
+      "source_document": "FILL and ACTFL-aligned planning guidance",
+      "source_section_or_page": "Curated planning notes",
+      "content_status": "curated_adaptation"
+    },
+    {
+      "id": "independent",
+      "label": "Working more independently",
+      "description": "Plan a purposeful task for an audience or situation, with strategies for handling unfamiliar language.",
+      "source_document": "FILL and ACTFL-aligned planning guidance",
+      "source_section_or_page": "Curated planning notes",
+      "content_status": "curated_adaptation"
+    }
+  ],
+  "areas": [
+    {
+      "id": "interpersonal-speaking-listening",
+      "label": "Interpersonal listening and speaking",
+      "description": "Exchange meaning with another person by listening, responding, and helping the interaction continue.",
+      "strong_example": "I can ask and answer questions about weekend plans with a partner and ask one follow-up question.",
+      "weak_example": "I can practice speaking vocabulary.",
+      "self_checks": ["Does it name an exchange with another person?", "Can someone hear or observe the interaction?", "Is the topic and action focused enough for this week?"],
+      "source_document": "FILL and ACTFL-aligned planning guidance",
+      "source_section_or_page": "Interpersonal communication planning notes",
+      "content_status": "curated_adaptation"
+    },
+    {
+      "id": "interpretive-reading",
+      "label": "Interpretive: Reading",
+      "description": "Make meaning from written language by identifying a message, details, or useful patterns.",
+      "strong_example": "I can read a short event listing and identify the main idea and two details I would use.",
+      "weak_example": "I can read an article.",
+      "self_checks": ["Does it say what I will understand or identify?", "Is the text type or purpose clear?", "Could I show notes or a brief explanation as evidence?"],
+      "source_document": "FILL and ACTFL-aligned planning guidance",
+      "source_section_or_page": "Interpretive communication planning notes",
+      "content_status": "curated_adaptation"
+    },
+    {
+      "id": "interpretive-listening",
+      "label": "Interpretive: Listening",
+      "description": "Make meaning from spoken language by listening for a message, details, or familiar patterns.",
+      "strong_example": "I can listen to a short weather report and identify the forecast and two details.",
+      "weak_example": "I can listen to a podcast.",
+      "self_checks": ["Does it focus on meaning rather than just listening time?", "Does it name what I will identify or understand?", "Is the audio manageable for this week?"],
+      "source_document": "FILL and ACTFL-aligned planning guidance",
+      "source_section_or_page": "Interpretive communication planning notes",
+      "content_status": "curated_adaptation"
+    },
+    {
+      "id": "interpretive-viewing",
+      "label": "Interpretive: Viewing",
+      "description": "Make meaning from a visual or audiovisual text using what you see and hear.",
+      "strong_example": "I can watch a short cooking clip and explain the sequence of three actions I notice.",
+      "weak_example": "I can watch a video.",
+      "self_checks": ["Does it identify a visible or audible meaning task?", "Does it name what I will explain or notice?", "Can I save notes or a response as evidence?"],
+      "source_document": "FILL and ACTFL-aligned planning guidance",
+      "source_section_or_page": "Interpretive communication planning notes",
+      "content_status": "curated_adaptation"
+    },
+    {
+      "id": "interpersonal-writing",
+      "label": "Interpersonal writing",
+      "description": "Exchange meaning in writing by responding to another person and sustaining a brief interaction.",
+      "strong_example": "I can exchange three short messages about a meal plan and respond with one question.",
+      "weak_example": "I can write sentences.",
+      "self_checks": ["Does it include another person’s message or response?", "Does it explain how the exchange will continue?", "Is it a writing interaction, not a one-way composition?"],
+      "source_document": "FILL and ACTFL-aligned planning guidance",
+      "source_section_or_page": "Interpersonal communication planning notes",
+      "content_status": "curated_adaptation"
+    },
+    {
+      "id": "presentational-speaking",
+      "label": "Presentational speaking",
+      "description": "Prepare spoken language to share information, ideas, or reactions with an audience.",
+      "strong_example": "I can give a one-minute spoken recommendation for a local place and include two reasons.",
+      "weak_example": "I can talk about my topic.",
+      "self_checks": ["Does it name what I will communicate?", "Is the audience or purpose apparent?", "Could I record or perform it as evidence?"],
+      "source_document": "FILL and ACTFL-aligned planning guidance",
+      "source_section_or_page": "Presentational communication planning notes",
+      "content_status": "curated_adaptation"
+    },
+    {
+      "id": "presentational-writing",
+      "label": "Presentational writing",
+      "description": "Prepare writing to share information, ideas, or reactions with an audience.",
+      "strong_example": "I can write a short post describing a favorite activity and give two supporting details.",
+      "weak_example": "I can write about hobbies.",
+      "self_checks": ["Does it name a clear written message?", "Does it have a purpose or audience?", "Is the amount of writing achievable this week?"],
+      "source_document": "FILL and ACTFL-aligned planning guidance",
+      "source_section_or_page": "Presentational communication planning notes",
+      "content_status": "curated_adaptation"
+    },
+    {
+      "id": "intercultural-competence",
+      "label": "Intercultural competence",
+      "description": "Notice, investigate, and explain perspectives, practices, or products in context without assuming one experience represents everyone.",
+      "strong_example": "I can compare how two event invitations show expectations for guests and explain one question I still have.",
+      "weak_example": "I can learn about culture.",
+      "self_checks": ["Does it focus on context and evidence, not a stereotype?", "Does it name what I will compare, notice, or investigate?", "Does it leave room for curiosity or further questions?"],
+      "source_document": "FILL and ACTFL-aligned planning guidance",
+      "source_section_or_page": "Intercultural planning notes",
+      "content_status": "curated_adaptation"
+    }
+  ],
+  "activity_cards": [
+    {
+      "id": "meaning-first-input",
+      "areas": ["interpretive-reading", "interpretive-listening", "interpretive-viewing"],
+      "title": "Start with meaning",
+      "guidance": "Choose a short text, clip, or audio that connects to your topic. Decide in advance what main idea or details you will look for.",
+      "source_document": "FILL and ACTFL-aligned planning guidance",
+      "source_section_or_page": "Interpretive planning notes",
+      "content_status": "curated_adaptation"
+    },
+    {
+      "id": "interaction-rehearsal",
+      "areas": ["interpersonal-speaking-listening", "interpersonal-writing"],
+      "title": "Plan an exchange",
+      "guidance": "Choose a partner, prompt, or message thread. Prepare ways to respond and ask a follow-up question, but write your own plan for the exchange.",
+      "source_document": "FILL and ACTFL-aligned planning guidance",
+      "source_section_or_page": "Interpersonal planning notes",
+      "content_status": "curated_adaptation"
+    },
+    {
+      "id": "audience-purpose",
+      "areas": ["presentational-speaking", "presentational-writing"],
+      "title": "Name an audience and purpose",
+      "guidance": "Decide who should understand your message and why. Use that decision to choose the details, organization, and evidence you will prepare.",
+      "source_document": "FILL and ACTFL-aligned planning guidance",
+      "source_section_or_page": "Presentational planning notes",
+      "content_status": "curated_adaptation"
+    },
+    {
+      "id": "compare-contexts",
+      "areas": ["intercultural-competence"],
+      "title": "Compare contexts with care",
+      "guidance": "Use a specific source or experience. Notice what it shows in context, compare it thoughtfully, and record a question that remains.",
+      "source_document": "FILL and ACTFL-aligned planning guidance",
+      "source_section_or_page": "Intercultural planning notes",
+      "content_status": "curated_adaptation"
+    },
+    {
+      "id": "small-repeatable-steps",
+      "areas": ["interpersonal-speaking-listening", "interpretive-reading", "interpretive-listening", "interpretive-viewing", "interpersonal-writing", "presentational-speaking", "presentational-writing", "intercultural-competence"],
+      "title": "Use small, repeatable steps",
+      "guidance": "Break your work into a first step, a next step, and a final practice or evidence step. Keep each step realistic for the week.",
+      "source_document": "FILL and ACTFL-aligned planning guidance",
+      "source_section_or_page": "Weekly planning notes",
+      "content_status": "curated_adaptation"
+    },
+    {
+      "id": "evidence-check",
+      "areas": ["interpersonal-speaking-listening", "interpretive-reading", "interpretive-listening", "interpretive-viewing", "interpersonal-writing", "presentational-speaking", "presentational-writing", "intercultural-competence"],
+      "title": "Plan evidence early",
+      "guidance": "Choose what could show your progress by the end of the week, then make sure your activities give you a chance to create or demonstrate it.",
+      "source_document": "FILL and ACTFL-aligned planning guidance",
+      "source_section_or_page": "Weekly planning notes",
+      "content_status": "curated_adaptation"
+    }
+  ],
+  "reflection_prompts": [
+    "What helped you make progress last week?",
+    "What felt difficult, and what support would you choose next time?",
+    "What is one adjustment you want this plan to make?"
+  ],
+  "evidence_types": ["A short recording or live demonstration", "Notes, annotations, or a response to an interpretive text", "A draft or final written product", "A screenshot or photo of a process or artifact", "A brief reflection explaining what the evidence shows"]
+}
+
