@@ -26,4 +26,6 @@ Use only short, adapted, reviewed content. Do not commit raw FILL/ACTFL working 
 
 The application uses browser `sessionStorage` only; plans are cleared when the browser session ends or the student selects Reset. The Pages site does not transmit or retain plan answers. Canvas is the submission and feedback channel.
 
+This repository must never contain student or project-member PII, completed plans, Canvas exports, feedback, raw sources, credentials, or local working notes. Use only synthetic examples and reviewed public guidance. See [CONTRIBUTING.md](CONTRIBUTING.md) for the mandatory privacy rule and pull-request checks.
+
 Use feature branches and pull requests. The GitHub Actions workflow validates the static files and deploys only `public/` after changes reach the protected `main` branch. In the GitHub repository, set Pages to deploy with **GitHub Actions** and record the default `https://darredo1.github.io/fill-weekly-planner/` URL here after the first deployment. Keep the GitHub repository private only if the account plan supports Pages for private repositories; the Pages site itself is public.

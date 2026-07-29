@@ -53,7 +53,7 @@ h1, h2, h3 { line-height: 1.12; }
 .privacy-note p { margin: 0; font-size: 0.92rem; }
 
 .planner-shell { margin-bottom: 3rem; padding: 1.25rem; border: 1px solid var(--line); border-radius: 22px; background: var(--paper); box-shadow: var(--shadow); }
-.progress { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; list-style: none; padding: 0; margin: 0 0 1.25rem; }
+.progress { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; list-style: none; padding: 0; margin: 0 0 1.25rem; }
 .progress li { color: var(--muted); font-size: 0.88rem; }
 .progress span { display: inline-grid; place-items: center; width: 1.65rem; height: 1.65rem; margin-right: 0.3rem; border-radius: 50%; background: #dce5eb; }
 .progress .is-current { color: var(--unk-blue-deep); font-weight: 750; }
@@ -73,6 +73,7 @@ input:focus, select:focus, textarea:focus, button:focus { outline: 3px solid var
 textarea { resize: vertical; }
 
 .hint, .intro { color: var(--muted); font-size: 0.92rem; font-weight: 400; }
+.optional { color: var(--muted); font-size: 0.85rem; font-weight: 500; }
 .guidance-callout { margin: 1rem 0; padding: 0.8rem 1rem; border-left: 4px solid var(--unk-gold); background: var(--unk-blue-pale); }
 .guidance-callout p { margin: 0.25rem 0; }
 
@@ -88,9 +89,11 @@ legend { padding: 0 0.35rem; color: var(--unk-blue-deep); font-weight: 750; }
 .area-card h3 { margin: 0 0 0.4rem; color: var(--unk-blue-deep); }
 .area-card p { margin: 0.4rem 0; }
 .contrast { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 0.8rem 0; }
-.example { padding: 0.65rem; border-radius: 7px; font-size: 0.9rem; }
-.strong { border-left: 3px solid var(--unk-blue); background: var(--unk-blue-pale); }
-.weak { border-left: 3px solid #b26d00; background: var(--unk-gold-pale); }
+.example-group { margin: 0.75rem 0; padding: 0.65rem 0.8rem; border-radius: 7px; font-size: 0.9rem; }
+.example-group h4 { margin: 0 0 0.35rem; font-size: 0.95rem; }
+.example-group ul { margin: 0; padding-left: 1.2rem; }
+.example-group.strong { border-left: 3px solid var(--unk-blue); background: var(--unk-blue-pale); }
+.example-group.weak { border-left: 3px solid #b26d00; background: var(--unk-gold-pale); }
 .area-card ul { margin: 0.45rem 0 0.2rem; padding-left: 1.2rem; }
 .can-do { margin-top: 0.85rem; }
 

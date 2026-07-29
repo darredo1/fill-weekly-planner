@@ -1,0 +1,18 @@
+# Never commit completed plans, local notes, or downloaded student work.
+*.env
+.env.*
+!.env.example
+local-notes/
+private-notes/
+student-plans/
+submissions/
+exports/
+downloads/
+raw-sources/
+*.canvas-export.txt
+*.student-plan.txt
+
+# Local tooling output.
+.DS_Store
+coverage/
+node_modules/

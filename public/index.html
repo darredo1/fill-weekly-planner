@@ -27,37 +27,39 @@
     <ol class="progress" aria-label="Planner progress">
       <li class="is-current"><span>1</span> Start</li>
       <li><span>2</span> Focus</li>
-      <li><span>3</span> Build</li>
-      <li><span>4</span> Review</li>
+      <li><span>3</span> Approaches</li>
+      <li><span>4</span> Build</li>
+      <li><span>5</span> Review</li>
     </ol>
     <p id="status" class="status" aria-live="polite"></p>
 
     <form id="planner-form" novalidate>
       <section class="wizard-step is-active" data-step="1" aria-labelledby="step-one-title">
-        <p class="step-label">Step 1 of 4</p>
+        <p class="step-label">Step 1 of 5</p>
         <h2 id="step-one-title">Start with this week</h2>
         <div class="field-grid">
           <label>Student name <input name="studentName" autocomplete="name" required></label>
           <label>Course <input name="course" required></label>
           <label>Week or dates <input name="week" placeholder="Week 4 · Sept. 9–13" required></label>
           <label>Target language <input name="language" required></label>
-          <label class="span-all">Optional guidance range
-            <select name="guidanceRange" id="guidance-range"><option value="">Choose later if you prefer</option></select>
-            <span class="hint">This changes the planning explanation only. It does not generate your plan.</span>
+          <label class="span-all">Carry-forward reflection <span class="optional">optional</span>
+            <textarea name="reflection" rows="4"></textarea>
+            <span id="reflection-hint" class="hint"></span>
           </label>
         </div>
       </section>
 
       <section class="wizard-step" data-step="2" aria-labelledby="step-two-title">
-        <p class="step-label">Step 2 of 4</p>
+        <p class="step-label">Step 2 of 5</p>
         <h2 id="step-two-title">Choose a focused purpose</h2>
-        <div id="mode-note" class="guidance-callout" hidden></div>
-        <label>What is one weekly growth need you want to address?
-          <textarea name="growthNeed" rows="3" required></textarea>
-        </label>
+        <p class="intro">Think of the topic area you want to focus on this week. It can be a continuation of last week's focus area.</p>
         <div class="field-grid">
-          <label>Topic <input name="topic" placeholder="food, campus life, music" required></label>
-          <label>Real-life context <input name="context" placeholder="ordering at a café, talking with a friend" required></label>
+          <label>Topic <input name="topic" placeholder="food, fashion, sports, nature" required>
+            <span class="hint">Topics can be broad, like food, fashion, sports, or nature, or more specific, like gardening or K-Pop. Vocabulary or past tense are not topics.</span>
+          </label>
+          <label>Real-life context <input name="context" placeholder="making plans by text, talking with a friend" required>
+            <span class="hint">Real-life contexts include commenting on social media posts, discussing with friends, making plans by text, or describing the layout of your dorm room.</span>
+          </label>
         </div>
         <fieldset>
           <legend>Select the learning areas for this plan</legend>
@@ -69,8 +71,15 @@
       </section>
 
       <section class="wizard-step" data-step="3" aria-labelledby="step-three-title">
-        <p class="step-label">Step 3 of 4</p>
-        <h2 id="step-three-title">Build your plan</h2>
+        <p class="step-label">Step 3 of 5</p>
+        <h2 id="step-three-title">Planning approaches to adapt</h2>
+        <p class="intro">Use these approaches to think through your activities. They will not fill in any part of your plan.</p>
+        <div id="planning-approaches" class="planning-cards"></div>
+      </section>
+
+      <section class="wizard-step" data-step="4" aria-labelledby="step-four-title">
+        <p class="step-label">Step 4 of 5</p>
+        <h2 id="step-four-title">Build your plan</h2>
         <p class="intro">Read the short guidance for each selected area, then write your own can-do statement. The examples are contrasts to help you evaluate your writing; they are not templates to submit.</p>
         <div id="area-guidance" class="area-guidance"></div>
         <div class="plan-fields">
@@ -88,16 +97,12 @@
           <label>First–next–then action plan
             <textarea name="actionPlan" rows="4" required></textarea>
           </label>
-          <label>Carry-forward reflection
-            <textarea name="reflection" rows="4" required></textarea>
-            <span id="reflection-hint" class="hint"></span>
-          </label>
         </div>
       </section>
 
-      <section class="wizard-step" data-step="4" aria-labelledby="step-four-title">
-        <p class="step-label">Step 4 of 4</p>
-        <h2 id="step-four-title">Review and export</h2>
+      <section class="wizard-step" data-step="5" aria-labelledby="step-five-title">
+        <p class="step-label">Step 5 of 5</p>
+        <h2 id="step-five-title">Review and export</h2>
         <div class="self-check">
           <h3>Final self-check</h3>
           <label><input type="checkbox" name="checkFocused"> My can-dos name an observable action in a real context.</label>
@@ -106,7 +111,10 @@
           <label><input type="checkbox" name="checkAuthored"> I wrote this plan in my own words.</label>
         </div>
         <p class="intro">Your export is formatted for Canvas. Copy or download it, then submit it in Canvas. This site cannot submit it for you.</p>
-        <textarea id="export-text" rows="18" readonly aria-label="Canvas-ready plan export"></textarea>
+        <label for="export-text">Canvas-ready plan
+          <textarea id="export-text" rows="18" aria-label="Canvas-ready plan export"></textarea>
+          <span class="hint">Review or make final edits here before copying or downloading your submission.</span>
+        </label>
         <div class="export-actions">
           <button type="button" class="button primary" id="copy-export">Copy for Canvas</button>
           <button type="button" class="button secondary" id="download-export">Download .txt</button>
@@ -120,8 +128,7 @@
       </div>
     </form>
   </main>
-  <footer>FILL Weekly Planner V2 · Plan here, submit and receive feedback in Canvas.</footer>
+  <footer>FILL Weekly Planner · Plan here, submit and receive feedback in Canvas.</footer>
   <script src="assets/app.js" defer></script>
 </body>
 </html>
-
