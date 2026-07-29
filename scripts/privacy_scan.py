@@ -30,6 +30,10 @@ def git(*args: str) -> str:
     return subprocess.check_output(["git", "-C", str(ROOT), *args], text=True)
 
 
+def git_bytes(*args: str) -> bytes:
+    return subprocess.check_output(["git", "-C", str(ROOT), *args])
+
+
 def check_text(label: str, text: str) -> list[str]:
     findings = []
     for rule, expression in RULES.items():
@@ -59,8 +63,8 @@ def scan_history() -> list[str]:
     for commit in git("rev-list", "--all").splitlines():
         for relative_path in git("ls-tree", "-r", "--name-only", commit).splitlines():
             try:
-                text = git("show", f"{commit}:{relative_path}")
-            except subprocess.CalledProcessError:
+                text = git_bytes("show", f"{commit}:{relative_path}").decode("utf-8")
+            except (subprocess.CalledProcessError, UnicodeDecodeError):
                 continue
             findings.extend(check_text(f"history {commit[:12]}:{relative_path}", text))
     return findings
