@@ -42,6 +42,7 @@ button, input, select, textarea { font: inherit; }
 }
 
 .brand-intro { border-left: 0.45rem solid var(--unk-gold); padding-left: 1.15rem; }
+.department-lockup { display: block; width: min(330px, 100%); height: auto; margin: -2.2rem 0 -1.8rem; }
 .university-name { margin: 0 0 0.45rem; color: var(--unk-blue); font-size: 0.82rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; }
 .eyebrow, .step-label { margin: 0 0 0.35rem; color: var(--unk-blue); font-size: 0.78rem; font-weight: 750; letter-spacing: 0.12em; text-transform: uppercase; }
 h1, h2, h3 { line-height: 1.12; }
