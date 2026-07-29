@@ -42,6 +42,7 @@ button, input, select, textarea { font: inherit; }
 }
 
 .brand-intro { border-left: 0.45rem solid var(--unk-gold); padding-left: 1.15rem; }
+.header-tools { display: grid; justify-items: end; gap: 0.25rem; }
 .department-lockup { display: block; width: min(180px, 55vw); height: auto; margin: -1.45rem 0 -1.15rem; }
 .university-name { margin: 0 0 0.45rem; color: var(--unk-blue); font-size: 0.82rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; }
 .eyebrow, .step-label { margin: 0 0 0.35rem; color: var(--unk-blue); font-size: 0.78rem; font-weight: 750; letter-spacing: 0.12em; text-transform: uppercase; }
@@ -124,6 +125,8 @@ footer { padding: 0 1rem 2rem; color: var(--muted); text-align: center; font-siz
 
 @media (max-width: 650px) {
   .site-header { grid-template-columns: 1fr; gap: 1rem; padding-top: 2rem; }
+  .header-tools { justify-items: stretch; }
+  .department-lockup { justify-self: end; }
   .progress { justify-items: center; }
   .progress li { font-size: 0; }
   .progress span { margin: 0; }
