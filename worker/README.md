@@ -54,18 +54,26 @@ npx wrangler secret put ANTHROPIC_API_KEY   # prompts for the key, stores it in 
 npm run deploy
 ```
 
+## Site wiring
+
+`app.js` already calls this worker: step 3's area cards render a "Check my
+can-do" button (only when `FEEDBACK_ENABLED` is true) that POSTs the
+statement, renders the returned checklist, and never writes into the
+student's textarea. A per-tab `sessionId` is generated with
+`crypto.randomUUID()` and stored in `sessionStorage` separately from the
+plan itself, cleared on Reset.
+
 ## Still to do before this is live on the site
 
-- Add the deployed worker's origin to `connect-src` in
-  `public/index.html`'s CSP meta tag.
-- Wire `app.js` to call this endpoint (a "Check my can-do" action per
-  area) and render the returned checklist without ever writing into the
-  student's textarea.
-- Generate a client-side `sessionId` (e.g. `crypto.randomUUID()`) stored
-  alongside the existing planner state in `sessionStorage`, and send it
-  with each request.
-- Update `README.md` / `CONTRIBUTING.md`'s privacy section to disclose
-  this new data flow in plain language.
-- Restrict `ALLOWED_ORIGINS` in `src/index.js` to the real production
-  origin(s) before going live; `http://localhost:8000` is included only
-  for local development against the static site.
+1. Deploy this worker (see Deploy above) and note the `*.workers.dev` URL
+   Cloudflare gives you.
+2. Replace the placeholder URL in exactly two places with that real URL:
+   - `FEEDBACK_ENDPOINT` in `public/assets/app.js`
+   - the `connect-src` entry in the CSP meta tag in `public/index.html`
+   (Both files have a comment pointing at each other and at this file.)
+   Until both are updated, the feedback UI stays hidden — `FEEDBACK_ENABLED`
+   in `app.js` checks for the placeholder string and disables the feature
+   rather than shipping a broken button.
+3. Restrict `ALLOWED_ORIGINS` in `src/index.js` to the real production
+   origin(s) before going live; `http://localhost:8000` is included only
+   for local development against the static site.

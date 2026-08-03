@@ -99,6 +99,18 @@ legend { padding: 0 0.35rem; color: var(--unk-blue-deep); font-weight: 750; }
 .area-card ul { margin: 0.45rem 0 0.2rem; padding-left: 1.2rem; }
 .can-do { margin-top: 0.85rem; }
 
+.feedback { margin-top: 0.6rem; }
+.feedback-check-button { padding: 0.5rem 0.85rem; font-size: 0.9rem; }
+.feedback-status { min-height: 1.3rem; margin: 0.4rem 0 0; color: var(--muted); font-size: 0.85rem; }
+.feedback-result { margin-top: 0.5rem; }
+.feedback-checks { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+.feedback-check { padding: 0.6rem 0.75rem; border-left: 3px solid var(--line); border-radius: 6px; background: var(--ground); font-size: 0.9rem; }
+.feedback-check strong { display: block; margin-bottom: 0.2rem; color: var(--ink); }
+.feedback-check p { margin: 0; color: var(--muted); }
+.feedback-check.pass { border-left-color: #1a7a4c; }
+.feedback-check.needs-work { border-left-color: var(--danger); }
+.feedback-note { margin: 0.4rem 0 0; padding: 0.6rem 0.75rem; border-left: 3px solid var(--danger); border-radius: 6px; background: var(--ground); font-size: 0.9rem; color: var(--muted); }
+
 .planning-cards { margin: 1.5rem 0; }
 .planning-cards h3 { margin-bottom: 0.25rem; color: var(--unk-blue-deep); }
 .card-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; }

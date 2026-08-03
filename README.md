@@ -24,7 +24,9 @@ Use only short, adapted, reviewed content. Do not commit raw FILL/ACTFL working 
 
 ## Privacy and publishing
 
-The application uses browser `sessionStorage` only; plans are cleared when the browser session ends or the student selects Reset. The Pages site does not transmit or retain plan answers. Canvas is the submission and feedback channel.
+The application uses browser `sessionStorage` only; plans are cleared when the browser session ends or the student selects Reset. Canvas is the submission and feedback channel.
+
+The one exception: if a student clicks "Check my can-do" in step 3, that single can-do statement's text (and the learning area it belongs to) is sent to a separate feedback service (`worker/`) to get AI-generated feedback against the same rubric shown on screen. No other field — name, course, week, topic, activities, or any other statement — is included in that request, and the request is not required to complete or export a plan. See `worker/README.md` for how that service is configured and what it does and does not retain.
 
 This repository must never contain student or project-member PII, completed plans, Canvas exports, feedback, raw sources, credentials, or local working notes. Use only synthetic examples and reviewed public guidance. See [CONTRIBUTING.md](CONTRIBUTING.md) for the mandatory privacy rule and pull-request checks.
 
