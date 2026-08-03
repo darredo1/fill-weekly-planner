@@ -36,11 +36,11 @@
 
   function bindEvents() {
     form.addEventListener("input", (event) => {
-      if (event.target !== exportText) restored.exportText = "";
+      restored.exportText = event.target === exportText ? exportText.value : "";
       save();
     });
     form.addEventListener("change", (event) => {
-      if (event.target !== exportText) restored.exportText = "";
+      restored.exportText = event.target === exportText ? exportText.value : "";
       save();
       renderDependentContent();
     });
