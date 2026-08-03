@@ -1,0 +1,196 @@
+const ALLOWED_ORIGINS = new Set([
+  "https://darredo1.github.io",
+  "http://localhost:8000",
+]);
+
+const GUIDANCE_URL = "https://darredo1.github.io/fill-weekly-planner/data/planner-guidance.json";
+const GUIDANCE_CACHE_TTL_SECONDS = 300;
+const MAX_CAN_DO_LENGTH = 500;
+const MAX_CHECKS_PER_SESSION_AREA = 5;
+const SESSION_LIMIT_TTL_SECONDS = 60 * 60 * 2;
+const MODEL = "claude-haiku-4-5-20251001";
+const ANTHROPIC_VERSION = "2023-06-01";
+
+const FEEDBACK_TOOL = {
+  name: "submit_feedback",
+  description:
+    "Structured feedback on a student's can-do statement, evaluated against this learning area's self-check questions.",
+  input_schema: {
+    type: "object",
+    properties: {
+      checks: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            question: { type: "string" },
+            verdict: { type: "string", enum: ["pass", "needs_work"] },
+            note: { type: "string", description: "One concrete sentence explaining the verdict." },
+          },
+          required: ["question", "verdict", "note"],
+        },
+      },
+      overall: { type: "string", enum: ["pass", "needs_work", "off_topic"] },
+    },
+    required: ["checks", "overall"],
+  },
+};
+
+export default {
+  async fetch(request, env, ctx) {
+    const origin = request.headers.get("Origin");
+
+    if (request.method === "OPTIONS") return handlePreflight(origin);
+    if (request.method !== "POST") return json({ error: "Method not allowed" }, 405, origin);
+    if (!ALLOWED_ORIGINS.has(origin)) return json({ error: "Origin not allowed" }, 403, origin);
+
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return json({ error: "Invalid JSON body" }, 400, origin);
+    }
+
+    const { areaId, canDoText, sessionId } = body || {};
+    const validationError = validateInput(areaId, canDoText, sessionId);
+    if (validationError) return json({ error: validationError }, 400, origin);
+
+    const trimmed = canDoText.trim();
+    const rateLimitKey = `ratelimit:${sessionId}:${areaId}`;
+    const priorCount = Number((await env.RATE_LIMIT_KV.get(rateLimitKey)) || "0");
+    if (priorCount >= MAX_CHECKS_PER_SESSION_AREA) {
+      return json(
+        { error: "You've used all your checks for this area this session." },
+        429,
+        origin
+      );
+    }
+
+    let area;
+    try {
+      area = await getArea(areaId, ctx);
+    } catch {
+      return json({ error: "Guidance library is unavailable right now." }, 502, origin);
+    }
+    if (!area) return json({ error: "Unknown areaId" }, 400, origin);
+
+    let feedback;
+    try {
+      feedback = await getFeedback(area, trimmed, env);
+    } catch (error) {
+      return json({ error: "Feedback service failed. Try again shortly." }, 502, origin);
+    }
+
+    await env.RATE_LIMIT_KV.put(rateLimitKey, String(priorCount + 1), {
+      expirationTtl: SESSION_LIMIT_TTL_SECONDS,
+    });
+
+    return json({ feedback, checksRemaining: MAX_CHECKS_PER_SESSION_AREA - priorCount - 1 }, 200, origin);
+  },
+};
+
+function validateInput(areaId, canDoText, sessionId) {
+  if (typeof areaId !== "string" || !areaId) return "areaId is required";
+  if (typeof canDoText !== "string" || !canDoText.trim()) return "canDoText is required";
+  if (canDoText.trim().length > MAX_CAN_DO_LENGTH) return `canDoText exceeds ${MAX_CAN_DO_LENGTH} characters`;
+  if (typeof sessionId !== "string" || !/^[a-zA-Z0-9_-]{1,128}$/.test(sessionId)) return "Invalid sessionId";
+  return null;
+}
+
+async function getArea(areaId, ctx) {
+  const cache = caches.default;
+  const cacheKey = new Request(GUIDANCE_URL);
+  let response = await cache.match(cacheKey);
+
+  if (!response) {
+    const upstream = await fetch(GUIDANCE_URL);
+    if (!upstream.ok) throw new Error(`Guidance fetch failed: ${upstream.status}`);
+    response = new Response(upstream.body, upstream);
+    response.headers.set("Cache-Control", `max-age=${GUIDANCE_CACHE_TTL_SECONDS}`);
+    ctx.waitUntil(cache.put(cacheKey, response.clone()));
+  }
+
+  const guidance = await response.json();
+  return (guidance.areas || []).find((area) => area.id === areaId) || null;
+}
+
+async function getFeedback(area, canDoText, env) {
+  const systemPrompt = buildSystemPrompt(area);
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": env.ANTHROPIC_API_KEY,
+      "anthropic-version": ANTHROPIC_VERSION,
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 500,
+      system: systemPrompt,
+      messages: [{ role: "user", content: canDoText }],
+      tools: [FEEDBACK_TOOL],
+      tool_choice: { type: "tool", name: "submit_feedback" },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Anthropic API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const toolUse = (data.content || []).find((block) => block.type === "tool_use" && block.name === "submit_feedback");
+  if (!toolUse) throw new Error("Model did not return structured feedback");
+  return toolUse.input;
+}
+
+function buildSystemPrompt(area) {
+  const extraRules = Array.isArray(area.feedback_rules) && area.feedback_rules.length
+    ? `\n\nAdditional guidance for this area:\n${area.feedback_rules.map((rule) => `- ${rule}`).join("\n")}`
+    : "";
+
+  return [
+    "You are a writing coach for a single language-learning area in a student weekly planner.",
+    "You give brief, specific feedback on ONE student-authored can-do statement. You never write, rewrite, or suggest replacement wording for the statement — the student must author every word of their own plan.",
+    "",
+    `Area: ${area.label}`,
+    `Description: ${area.description}`,
+    `Strong examples: ${(area.strong_examples || []).join(" | ")}`,
+    `Weak examples: ${(area.weak_examples || []).join(" | ")}`,
+    `Self-check questions: ${(area.self_checks || []).join(" | ")}`,
+    extraRules,
+    "",
+    "Rules:",
+    "- Evaluate the statement against each self-check question. For each, give a verdict of pass or needs_work plus one concrete sentence why.",
+    "- If the statement is off-topic, empty of meaning, or not related to language learning, set overall to off_topic and explain briefly in the notes instead of scoring the checks.",
+    "- Never output a replacement or improved version of the statement, even as an example.",
+    "- Be concrete, not encouraging filler. No praise padding.",
+    "- Always respond using the submit_feedback tool.",
+  ].join("\n");
+}
+
+function handlePreflight(origin) {
+  if (!ALLOWED_ORIGINS.has(origin)) return new Response(null, { status: 403 });
+  return new Response(null, {
+    status: 204,
+    headers: {
+      ...corsHeaders(origin),
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "content-type",
+    },
+  });
+}
+
+function corsHeaders(origin) {
+  return origin && ALLOWED_ORIGINS.has(origin) ? { "Access-Control-Allow-Origin": origin } : {};
+}
+
+function json(payload, status, origin) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: {
+      "content-type": "application/json",
+      ...corsHeaders(origin),
+    },
+  });
+}
