@@ -4,6 +4,16 @@
   const STORAGE_KEY = "fill-weekly-planner-v3";
   const REQUIRED_AREA = "interpersonal-speaking-listening";
   const TOTAL_STEPS = 5;
+
+  // Keep this in sync with the connect-src entry in index.html's CSP meta tag,
+  // and with worker/README.md. Feedback is hidden entirely until this is set
+  // to a real deployed worker URL.
+  const FEEDBACK_ENDPOINT = "https://fill-weekly-planner-feedback.darredo1.workers.dev";
+  const FEEDBACK_ENABLED = !FEEDBACK_ENDPOINT.includes("REPLACE-WITH");
+  const FEEDBACK_SESSION_KEY = "fill-weekly-planner-feedback-session-v1";
+  const MAX_CAN_DO_LENGTH = 500;
+  const feedbackCache = new Map();
+  let lastAreaSignature = null;
   const form = document.querySelector("#planner-form");
   const steps = [...document.querySelectorAll(".wizard-step")];
   const progress = [...document.querySelectorAll(".progress li")];
@@ -36,11 +46,11 @@
 
   function bindEvents() {
     form.addEventListener("input", (event) => {
-      if (event.target !== exportText) restored.exportText = "";
+      restored.exportText = event.target === exportText ? exportText.value : "";
       save();
     });
     form.addEventListener("change", (event) => {
-      if (event.target !== exportText) restored.exportText = "";
+      restored.exportText = event.target === exportText ? exportText.value : "";
       save();
       renderDependentContent();
     });
@@ -83,7 +93,16 @@
         ? "Choose only two additional areas."
         : `Choose ${2 - extra} additional area${2 - extra === 1 ? "" : "s"}.`;
     renderApproaches();
-    renderAreaGuidance();
+    // Only rebuild the area cards (and the "Check my can-do" buttons inside
+    // them) when the selected areas actually change. This handler fires on
+    // every form change, including edits inside the cards themselves; a
+    // full rebuild on every keystroke-commit would replace a card's own
+    // button out from under an in-progress click on it.
+    const signature = selectedAreas().join(",");
+    if (signature !== lastAreaSignature) {
+      lastAreaSignature = signature;
+      renderAreaGuidance();
+    }
   }
 
   function renderApproaches() {
@@ -122,8 +141,103 @@
       textarea.value = prior.get(textarea.name) || restored[textarea.name] || "";
       label.append(textarea);
       card.append(label);
+      if (FEEDBACK_ENABLED) card.append(buildFeedbackBlock(area, textarea));
       root.append(card);
     });
+  }
+
+  function buildFeedbackBlock(area, textarea) {
+    const block = element("div", "feedback");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "button secondary feedback-check-button";
+    button.textContent = "Check my can-do";
+    const feedbackStatus = element("p", "feedback-status");
+    feedbackStatus.setAttribute("aria-live", "polite");
+    const result = element("div", "feedback-result");
+    result.hidden = true;
+
+    const cached = feedbackCache.get(area.id);
+    if (cached && cached.text === textarea.value) {
+      renderFeedbackResult(result, cached.result);
+      feedbackStatus.textContent = remainingMessage(cached.remaining);
+    }
+
+    button.addEventListener("click", () => checkCanDo(area, textarea, feedbackStatus, result, button));
+    block.append(button, feedbackStatus, result);
+    return block;
+  }
+
+  function remainingMessage(remaining) {
+    return remaining > 0
+      ? `${remaining} check${remaining === 1 ? "" : "s"} left for this area this session.`
+      : "No checks left for this area this session.";
+  }
+
+  async function checkCanDo(area, textarea, statusEl, resultEl, button) {
+    const text = textarea.value.trim();
+    if (!text) {
+      statusEl.textContent = "Write your can-do statement first.";
+      return;
+    }
+    if (text.length > MAX_CAN_DO_LENGTH) {
+      statusEl.textContent = `Shorten your statement to ${MAX_CAN_DO_LENGTH} characters or fewer to check it.`;
+      return;
+    }
+    button.disabled = true;
+    statusEl.textContent = "Checking…";
+    resultEl.hidden = true;
+    try {
+      const response = await fetch(FEEDBACK_ENDPOINT, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ areaId: area.id, canDoText: text, sessionId: feedbackSessionId() }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        statusEl.textContent = data.error || "Feedback isn't available right now.";
+        return;
+      }
+      feedbackCache.set(area.id, { text, result: data.feedback, remaining: data.checksRemaining });
+      renderFeedbackResult(resultEl, data.feedback);
+      statusEl.textContent = remainingMessage(data.checksRemaining);
+    } catch {
+      statusEl.textContent = "Could not reach the feedback service. Your plan is unaffected.";
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  function renderFeedbackResult(root, feedback) {
+    root.replaceChildren();
+    if (!feedback || feedback.overall === "off_topic") {
+      root.append(element("p", "feedback-note", "This doesn't read as a can-do statement yet. Describe what you can actually do."));
+      root.hidden = false;
+      return;
+    }
+    const list = document.createElement("ul");
+    list.className = "feedback-checks";
+    (feedback.checks || []).forEach((check) => {
+      const item = element("li", `feedback-check ${check.verdict === "pass" ? "pass" : "needs-work"}`);
+      item.append(element("strong", "", check.question));
+      item.append(element("p", "", check.note));
+      list.append(item);
+    });
+    root.append(list);
+    root.hidden = false;
+  }
+
+  function feedbackSessionId() {
+    try {
+      let id = sessionStorage.getItem(FEEDBACK_SESSION_KEY);
+      if (!id) {
+        id = crypto.randomUUID();
+        sessionStorage.setItem(FEEDBACK_SESSION_KEY, id);
+      }
+      return id;
+    } catch {
+      return "no-storage";
+    }
   }
 
   function exampleGroup(title, examples, className) {
@@ -225,6 +339,9 @@
   function reset() {
     if (!window.confirm("Reset this session’s plan? This clears the plan from this browser session.")) return;
     sessionStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(FEEDBACK_SESSION_KEY);
+    feedbackCache.clear();
+    lastAreaSignature = null;
     restored = {};
     form.reset();
     currentStep = 1;

@@ -4,7 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="A private-in-your-browser weekly planning wizard for language learners.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data:; base-uri 'self'; form-action 'self'">
+  <!-- connect-src's second origin is the can-do feedback worker. Keep it in sync with
+       FEEDBACK_ENDPOINT in assets/app.js and with worker/README.md. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self' https://fill-weekly-planner-feedback.darredo1.workers.dev; img-src 'self' data:; base-uri 'self'; form-action 'self'">
   <title>FILL Weekly Planner</title>
   <link rel="stylesheet" href="assets/styles.css">
 </head>

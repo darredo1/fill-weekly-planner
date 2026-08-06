@@ -6,6 +6,8 @@ Do not add personally identifiable information to this repository or its collabo
 
 Never contribute student or project-member names, email addresses, usernames, IDs, enrollment details, completed plans, Canvas exports, instructor feedback, rosters, contact information, or identifiable working notes. Use role labels and synthetic examples only. GitHub account and normal Git author metadata are managed by the platform and are outside this content rule.
 
+This also applies to `worker/`: the feedback service must never log or persist request bodies (can-do statement text), and must not be extended to accept or forward any other plan field without updating this document and README.md's privacy section first.
+
 If you notice PII before merging, remove it and substitute synthetic or de-identified content. If it is already on a shared branch, stop release work and notify the repository maintainer without repeating the sensitive material in an issue or chat.
 
 ## Before opening a pull request

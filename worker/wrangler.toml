@@ -1,0 +1,12 @@
+name = "fill-weekly-planner-feedback"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+# Create with: wrangler kv namespace create RATE_LIMIT_KV
+# then replace the id below with the value it prints.
+kv_namespaces = [
+  { binding = "RATE_LIMIT_KV", id = "5e2e95ee12ea4c46badd69c5b3652992" }
+]
+
+# Secrets (never put these in this file):
+#   wrangler secret put ANTHROPIC_API_KEY
