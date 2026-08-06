@@ -25,6 +25,20 @@ RULES = {
     "GitHub token": pattern([r"\bgh[pousr]_[A-Za-z0-9_]{20,}\b"]),
 }
 
+# Non-personal, platform-generated addresses that legitimately appear in commit
+# trailers (e.g. "Co-authored-by:" lines added by squash-merges) and normal git
+# author metadata. These identify no individual and are not PII; CONTRIBUTING.md
+# already carves out "GitHub account and normal Git author metadata" from the
+# privacy rule, and Co-authored-by trailers referencing them are the same case.
+EMAIL_ALLOWLIST = pattern([r"\bnoreply@anthropic\.com\b|\b[A-Z0-9._%+-]+@users\.noreply\.github\.com\b"])
+
+
+def matches_email_rule(text: str) -> bool:
+    for match in RULES["email address"].finditer(text):
+        if not EMAIL_ALLOWLIST.fullmatch(match.group(0)):
+            return True
+    return False
+
 
 def git(*args: str) -> str:
     return subprocess.check_output(["git", "-C", str(ROOT), *args], text=True)
@@ -37,7 +51,10 @@ def git_bytes(*args: str) -> bytes:
 def check_text(label: str, text: str) -> list[str]:
     findings = []
     for rule, expression in RULES.items():
-        if expression.search(text):
+        if rule == "email address":
+            if matches_email_rule(text):
+                findings.append(f"{label}: possible {rule}")
+        elif expression.search(text):
             findings.append(f"{label}: possible {rule}")
     return findings
 
