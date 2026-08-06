@@ -8,7 +8,7 @@
   // Keep this in sync with the connect-src entry in index.html's CSP meta tag,
   // and with worker/README.md. Feedback is hidden entirely until this is set
   // to a real deployed worker URL.
-  const FEEDBACK_ENDPOINT = "https://fill-weekly-planner-feedback.REPLACE-WITH-YOUR-SUBDOMAIN.workers.dev";
+  const FEEDBACK_ENDPOINT = "https://fill-weekly-planner-feedback.darredo1.workers.dev";
   const FEEDBACK_ENABLED = !FEEDBACK_ENDPOINT.includes("REPLACE-WITH");
   const FEEDBACK_SESSION_KEY = "fill-weekly-planner-feedback-session-v1";
   const MAX_CAN_DO_LENGTH = 500;
