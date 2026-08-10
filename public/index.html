@@ -33,7 +33,7 @@
       <li class="is-current"><span>1</span> Start</li>
       <li><span>2</span> Focus</li>
       <li><span>3</span> Build</li>
-      <li><span>4</span> Approaches</li>
+      <li><span>4</span> Plan Approaches</li>
       <li><span>5</span> Review</li>
     </ol>
     <p id="status" class="status" aria-live="polite"></p>
@@ -69,17 +69,17 @@
         <fieldset>
           <legend>Select the learning areas for this plan</legend>
           <p class="hint">Interpersonal listening and speaking is included. Choose two additional areas. Each selected area will give you explanation, a contrast, and a self-check before you write.</p>
-          <label class="locked-choice"><input type="checkbox" checked disabled> Interpersonal listening and speaking <span>required</span></label>
-          <div id="area-choices" class="choice-grid"></div>
+          <div id="area-choice-cards" class="area-choice-cards"></div>
           <p id="area-counter" class="hint" aria-live="polite">Choose 2 additional areas.</p>
         </fieldset>
       </section>
 
       <section class="wizard-step" data-step="4" aria-labelledby="step-four-title">
         <p class="step-label">Step 4 of 5</p>
-        <h2 id="step-four-title">Planning approaches to adapt</h2>
-        <p class="intro">Use these approaches to think through your activities. They will not fill in any part of your plan.</p>
-        <div id="planning-approaches" class="planning-cards"></div>
+        <h2 id="step-four-title">Plan your approaches for the week</h2>
+        <p id="plan-approaches-intro" class="intro"></p>
+        <div id="plan-recap" class="plan-recap"></div>
+        <div id="learning-plan-stages" class="learning-plan-stages"></div>
       </section>
 
       <section class="wizard-step" data-step="3" aria-labelledby="step-three-title">
@@ -87,22 +87,6 @@
         <h2 id="step-three-title">Build your plan</h2>
         <p class="intro">Read the short guidance for each selected area, then write your own can-do statement. The examples are contrasts to help you evaluate your writing; they are not templates to submit.</p>
         <div id="area-guidance" class="area-guidance"></div>
-        <div class="plan-fields">
-          <label>Student-authored learning activities
-            <textarea name="activities" rows="4" required></textarea>
-            <span class="hint">Describe what you will actually do to practice. Keep it connected to your areas and context.</span>
-          </label>
-          <label>Planned artifact or evidence
-            <textarea name="evidence" rows="3" required></textarea>
-            <span id="evidence-hint" class="hint"></span>
-          </label>
-          <label>Strategies and resources
-            <textarea name="strategies" rows="3" required></textarea>
-          </label>
-          <label>First–next–then action plan
-            <textarea name="actionPlan" rows="4" required></textarea>
-          </label>
-        </div>
       </section>
 
       <section class="wizard-step" data-step="5" aria-labelledby="step-five-title">
@@ -112,7 +96,7 @@
           <h3>Final self-check</h3>
           <label><input type="checkbox" name="checkFocused"> My can-dos name an observable action in a real context.</label>
           <label><input type="checkbox" name="checkEvidence"> My evidence would show progress toward my plan.</label>
-          <label><input type="checkbox" name="checkSteps"> My first–next–then steps are realistic for this week.</label>
+          <label><input type="checkbox" name="checkSteps"> My Input, Interaction and Practice, and Production plans are realistic for this week.</label>
           <label><input type="checkbox" name="checkAuthored"> I wrote this plan in my own words.</label>
         </div>
         <p class="intro">Your export is formatted for Canvas. Copy or download it, then submit it in Canvas. This site cannot submit it for you.</p>
