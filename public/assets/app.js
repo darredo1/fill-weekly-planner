@@ -216,8 +216,9 @@
   }
 
   function updateChecksUI(areaId, badge, flagWrap) {
-    const remaining = checksRemainingByArea.has(areaId) ? checksRemainingByArea.get(areaId) : MAX_CHECKS_PER_SESSION_AREA;
-    badge.textContent = `${Math.max(remaining, 0)}/${MAX_CHECKS_PER_SESSION_AREA} checks remaining`;
+    const state = checksRemainingByArea.get(areaId) || { remaining: MAX_CHECKS_PER_SESSION_AREA, max: MAX_CHECKS_PER_SESSION_AREA };
+    const remaining = state.remaining;
+    badge.textContent = `${Math.max(remaining, 0)}/${state.max} checks remaining`;
     if (remaining > 0) {
       flagWrap.hidden = true;
       return;
@@ -255,7 +256,8 @@
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
         if (response.status === 429) {
-          checksRemainingByArea.set(area.id, 0);
+          const priorMax = checksRemainingByArea.get(area.id)?.max || MAX_CHECKS_PER_SESSION_AREA;
+          checksRemainingByArea.set(area.id, { remaining: 0, max: data.checksMax || priorMax });
           updateChecksUI(area.id, badge, flagWrap);
           save();
         }
@@ -264,7 +266,7 @@
       }
       feedbackCache.set(area.id, { text, result: data.feedback });
       renderFeedbackResult(resultEl, data.feedback);
-      checksRemainingByArea.set(area.id, data.checksRemaining);
+      checksRemainingByArea.set(area.id, { remaining: data.checksRemaining, max: data.checksMax || MAX_CHECKS_PER_SESSION_AREA });
       updateChecksUI(area.id, badge, flagWrap);
       statusEl.textContent = "";
       save();
@@ -423,7 +425,7 @@
     const value = (name) => (form.elements[name]?.value || "").trim();
     const flagged = (id) => !!form.elements[`instructorFlag__${id}`]?.checked;
     const canDos = selectedAreas()
-      .map((id) => `${flagged(id) ? "! " : ""}${areaById(id).label}:\n${value(`canDo__${id}`)}`)
+      .map((id) => `${flagged(id) ? "*** INSTRUCTOR: PLEASE REVIEW *** " : ""}${areaById(id).label}:\n${value(`canDo__${id}`)}`)
       .join("\n\n");
     return [
       `Student: ${value("studentName")}`, `Course: ${value("course")}`, `Week: ${value("week")}`, `Language: ${value("language")}`,

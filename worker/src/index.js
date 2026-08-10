@@ -60,7 +60,11 @@ export default {
     const priorCount = Number((await env.RATE_LIMIT_KV.get(rateLimitKey)) || "0");
     if (priorCount >= MAX_CHECKS_PER_SESSION_AREA) {
       return json(
-        { error: "You've used all your checks for this area this session." },
+        {
+          error: "You've used all your checks for this area this session.",
+          checksRemaining: 0,
+          checksMax: MAX_CHECKS_PER_SESSION_AREA,
+        },
         429,
         origin
       );
@@ -86,7 +90,11 @@ export default {
       expirationTtl: SESSION_LIMIT_TTL_SECONDS,
     });
 
-    return json({ feedback, checksRemaining: MAX_CHECKS_PER_SESSION_AREA - priorCount - 1 }, 200, origin);
+    return json(
+      { feedback, checksRemaining: MAX_CHECKS_PER_SESSION_AREA - priorCount - 1, checksMax: MAX_CHECKS_PER_SESSION_AREA },
+      200,
+      origin
+    );
   },
 };
 
