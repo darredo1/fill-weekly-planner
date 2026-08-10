@@ -15,10 +15,18 @@ workflow.
    That rubric — not a separately maintained prompt — is what the model is
    graded against, so editing `public/data/planner-guidance.json` is enough
    to change feedback behavior.
-3. An optional `feedback_rules` array can be added to any area object in
-   that JSON for extra durable instructions specific to writing can-do
-   statements (e.g. once the fuller can-do documentation is ready). If
-   present, it's appended to the system prompt verbatim.
+3. A top-level `feedback_guidance` object in that same JSON carries the
+   course-wide rubric that applies across every area: the six "what makes a
+   can-do statement good" writing criteria, the common weak-statement
+   pattern to watch for, and a `target_level` (currently `"novice"`) with
+   ACTFL proficiency descriptions so the model can recognize when a
+   statement describes above-target ability and say so, rather than just
+   scoring it as "too hard." This is separate from each area's own
+   `self_checks` (still the actual scored checklist) — it's context that
+   shapes how the model explains its verdicts. An optional `feedback_rules`
+   array can also be added to any individual area object for guidance
+   specific to that one area; if present, it's appended to the system
+   prompt verbatim.
 4. The worker calls Claude with a forced tool call (`submit_feedback`) so
    the response is always structured JSON (per self-check verdict +
    overall), never free text — this makes it easy to render consistently

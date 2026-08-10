@@ -31,6 +31,37 @@
       "content_status": "curated_adaptation"
     }
   ],
+  "feedback_guidance": {
+    "source_document": "Writing a good objective; ACTFL Proficiency Level Summary Descriptions",
+    "source_section_or_page": "Can-do feedback training documentation",
+    "content_status": "curated_adaptation",
+    "target_level": "novice",
+    "writing_criteria": [
+      "Specific to a thematic context: the statement should relate directly to this week's topic and context, not be a generic language skill.",
+      "Appropriate for the proficiency level: language and demands should match what a Novice learner can reasonably do (see proficiency_notes).",
+      "Appropriate for the communicative mode: for interpretive modes it should name the type of text; for presentational modes it should name the audience or purpose; for interpersonal modes it should name the other person and how the exchange continues.",
+      "Measurable: it clearly defines an outcome that is observable, not a vague skill like 'talk about X'.",
+      "Identifies the communicative function: uses a specific verb such as describe, compare, ask, explain, recommend, or exchange rather than a vague verb like talk or learn.",
+      "Provides a real-world context: the language use is connected to an authentic situation with a real purpose, not just a classroom exercise."
+    ],
+    "checklist": [
+      "Is it connected to the theme of this week's plan?",
+      "Does it match a Novice proficiency level?",
+      "Does it fit the communicative mode it's written for?",
+      "Is it something someone could actually observe the student doing?",
+      "Does it use a specific communicative function (describe, compare, ask, explain, recommend, persuade, etc.) rather than a vague verb like talk or learn?",
+      "Does it happen in a realistic situation for a real purpose?"
+    ],
+    "common_pitfall": "The most frequent weak statement is a generic skill with no function or context, e.g. 'I can talk about food' or 'I can learn food vocabulary' — missing both a specific communicative function and a real-world purpose. Compare: 'I can order a meal at a restaurant, ask questions about the menu, and explain my food preferences.'",
+    "proficiency_notes": {
+      "target_level_descriptions": {
+        "Novice Low": "Can produce isolated words or memorized chunks with significant pauses and repetition. Communication is limited to lists or single, rehearsed phrases. Relies heavily on listeners to interpret meaning.",
+        "Novice Mid": "Can handle simple exchanges using memorized phrases and familiar topics. Responses are short, often formulaic. Speech reflects survival-type communication (e.g., greetings, ordering food).",
+        "Novice High": "Can manage short, simple conversations in predictable contexts. Begins to recombine memorized phrases into new sentences. Breaks down when asked to narrate, describe in detail, or handle unexpected situations."
+      },
+      "above_target_note": "Statements that require narrating in paragraphs, handling complications, discussing abstract topics, or sustaining unscripted conversation describe Intermediate-level ability or higher. Flag these as more ambitious than this course expects, not simply as 'too hard' — the student should scale the statement down to something observable at the Novice level instead."
+    }
+  },
   "areas": [
     {
       "id": "interpersonal-speaking-listening",

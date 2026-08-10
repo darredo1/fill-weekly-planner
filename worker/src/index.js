@@ -66,17 +66,18 @@ export default {
       );
     }
 
-    let area;
+    let guidance;
     try {
-      area = await getArea(areaId, ctx);
+      guidance = await getGuidance(ctx);
     } catch {
       return json({ error: "Guidance library is unavailable right now." }, 502, origin);
     }
+    const area = (guidance.areas || []).find((a) => a.id === areaId) || null;
     if (!area) return json({ error: "Unknown areaId" }, 400, origin);
 
     let feedback;
     try {
-      feedback = await getFeedback(area, trimmed, env);
+      feedback = await getFeedback(area, guidance.feedback_guidance, trimmed, env);
     } catch (error) {
       return json({ error: "Feedback service failed. Try again shortly." }, 502, origin);
     }
@@ -97,7 +98,7 @@ function validateInput(areaId, canDoText, sessionId) {
   return null;
 }
 
-async function getArea(areaId, ctx) {
+async function getGuidance(ctx) {
   const cache = caches.default;
   const cacheKey = new Request(GUIDANCE_URL);
   let response = await cache.match(cacheKey);
@@ -110,12 +111,11 @@ async function getArea(areaId, ctx) {
     ctx.waitUntil(cache.put(cacheKey, response.clone()));
   }
 
-  const guidance = await response.json();
-  return (guidance.areas || []).find((area) => area.id === areaId) || null;
+  return response.json();
 }
 
-async function getFeedback(area, canDoText, env) {
-  const systemPrompt = buildSystemPrompt(area);
+async function getFeedback(area, feedbackGuidance, canDoText, env) {
+  const systemPrompt = buildSystemPrompt(area, feedbackGuidance);
 
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -144,9 +144,23 @@ async function getFeedback(area, canDoText, env) {
   return toolUse.input;
 }
 
-function buildSystemPrompt(area) {
+function buildSystemPrompt(area, feedbackGuidance) {
   const extraRules = Array.isArray(area.feedback_rules) && area.feedback_rules.length
     ? `\n\nAdditional guidance for this area:\n${area.feedback_rules.map((rule) => `- ${rule}`).join("\n")}`
+    : "";
+
+  const fg = feedbackGuidance || {};
+  const writingCriteria = Array.isArray(fg.writing_criteria) && fg.writing_criteria.length
+    ? `\n\nWhat makes a can-do statement good, in general (use this to judge tone and flag issues the self-check questions below don't already cover):\n${fg.writing_criteria.map((c) => `- ${c}`).join("\n")}`
+    : "";
+  const commonPitfall = fg.common_pitfall ? `\n\nCommon weak pattern to watch for: ${fg.common_pitfall}` : "";
+  const levelDescriptions = fg.proficiency_notes?.target_level_descriptions
+    ? Object.entries(fg.proficiency_notes.target_level_descriptions)
+        .map(([level, desc]) => `- ${level}: ${desc}`)
+        .join("\n")
+    : "";
+  const proficiencySection = levelDescriptions
+    ? `\n\nThis course targets ${fg.target_level || "novice"}-level proficiency. What that looks like:\n${levelDescriptions}${fg.proficiency_notes?.above_target_note ? `\n${fg.proficiency_notes.above_target_note}` : ""}`
     : "";
 
   return [
@@ -159,9 +173,13 @@ function buildSystemPrompt(area) {
     `Weak examples: ${(area.weak_examples || []).join(" | ")}`,
     `Self-check questions: ${(area.self_checks || []).join(" | ")}`,
     extraRules,
+    writingCriteria,
+    commonPitfall,
+    proficiencySection,
     "",
     "Rules:",
     "- Evaluate the statement against each self-check question. For each, give a verdict of pass or needs_work plus one concrete sentence why.",
+    "- Use the general writing-criteria and proficiency-level guidance above to inform the wording of your notes (e.g. flag a statement that describes Intermediate-level ability as more ambitious than this course expects), but still report exactly one verdict per self-check question — do not add extra checks.",
     "- If the statement is off-topic, empty of meaning, or not related to language learning, set overall to off_topic and explain briefly in the notes instead of scoring the checks.",
     "- Never output a replacement or improved version of the statement, even as an example.",
     "- Be concrete, not encouraging filler. No praise padding.",
