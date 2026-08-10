@@ -12,7 +12,9 @@
   const FEEDBACK_ENABLED = !FEEDBACK_ENDPOINT.includes("REPLACE-WITH");
   const FEEDBACK_SESSION_KEY = "fill-weekly-planner-feedback-session-v1";
   const MAX_CAN_DO_LENGTH = 500;
+  const MAX_CHECKS_PER_SESSION_AREA = 3;
   const feedbackCache = new Map();
+  let checksRemainingByArea = new Map();
   let lastAreaSignature = null;
   const form = document.querySelector("#planner-form");
   const steps = [...document.querySelectorAll(".wizard-step")];
@@ -34,6 +36,7 @@
       if (!response.ok) throw new Error("Guidance could not load.");
       content = await response.json();
       buildChoices();
+      renderLearningPlanStages();
       populateStaticGuidance();
       restore();
       bindEvents();
@@ -62,20 +65,59 @@
   }
 
   function buildChoices() {
-    const choiceRoot = document.querySelector("#area-choices");
-    content.areas.filter((area) => area.id !== REQUIRED_AREA).forEach((area) => {
-      const label = document.createElement("label");
+    const root = document.querySelector("#area-choice-cards");
+    content.areas.forEach((area) => {
+      const isRequired = area.id === REQUIRED_AREA;
+      const card = element("article", `area-choice-card${isRequired ? " locked" : ""}`);
+      const header = document.createElement("label");
+      header.className = "area-choice-header";
       const input = document.createElement("input");
       input.type = "checkbox";
-      input.name = "areas";
-      input.value = area.id;
-      label.append(input, document.createTextNode(` ${area.label}`));
-      choiceRoot.append(label);
+      if (isRequired) {
+        input.checked = true;
+        input.disabled = true;
+      } else {
+        input.name = "areas";
+        input.value = area.id;
+      }
+      header.append(input, element("span", "area-choice-name", area.label));
+      if (isRequired) header.append(element("span", "required-tag", "required"));
+      card.append(header);
+      card.append(element("p", "area-choice-definition", area.learner_friendly_definition || area.description));
+      const list = document.createElement("ul");
+      list.className = "area-choice-examples";
+      (area.novice_examples || []).forEach((example) => list.append(element("li", "", example)));
+      card.append(list);
+      root.append(card);
+    });
+  }
+
+  function renderLearningPlanStages() {
+    document.querySelector("#plan-approaches-intro").textContent = content.learning_plan_intro || "";
+    const root = document.querySelector("#learning-plan-stages");
+    content.learning_plan_stages.forEach((stage) => {
+      const section = element("article", "plan-stage");
+      section.append(element("p", "stage-day-range", stage.day_range));
+      section.append(element("h3", "", stage.title));
+      section.append(element("p", "", stage.description));
+      const list = document.createElement("ul");
+      stage.activities.forEach((activity) => list.append(element("li", "", activity)));
+      section.append(list);
+      section.append(element("p", "brainstorm-prompt", stage.brainstorm_prompt));
+      const label = document.createElement("label");
+      label.className = "plan-stage-field";
+      label.append(document.createTextNode(stage.field_prompt));
+      const textarea = document.createElement("textarea");
+      textarea.name = stage.field_name;
+      textarea.required = true;
+      textarea.rows = 3;
+      label.append(textarea);
+      section.append(label);
+      root.append(section);
     });
   }
 
   function populateStaticGuidance() {
-    document.querySelector("#evidence-hint").textContent = `Evidence ideas: ${content.evidence_types.join(" · ")}. Choose and describe your own.`;
     document.querySelector("#reflection-hint").textContent = `Reflection prompts: ${content.reflection_prompts.join(" ")}`;
   }
 
@@ -92,7 +134,7 @@
       : extra > 2
         ? "Choose only two additional areas."
         : `Choose ${2 - extra} additional area${2 - extra === 1 ? "" : "s"}.`;
-    renderApproaches();
+    renderPlanRecap();
     // Only rebuild the area cards (and the "Check my can-do" buttons inside
     // them) when the selected areas actually change. This handler fires on
     // every form change, including edits inside the cards themselves; a
@@ -105,15 +147,14 @@
     }
   }
 
-  function renderApproaches() {
-    const root = document.querySelector("#planning-approaches");
+  function renderPlanRecap() {
+    const root = document.querySelector("#plan-recap");
     root.replaceChildren();
-    const cards = content.activity_cards.filter((card) => card.areas.some((area) => selectedAreas().includes(area))).slice(0, 5);
-    const list = element("div", "card-list");
-    cards.forEach((card) => {
-      const item = element("article", "planning-card");
-      item.append(element("h3", "", card.title), element("p", "", card.guidance));
-      list.append(item);
+    root.append(element("strong", "", "My three goals for this week"));
+    const list = document.createElement("ul");
+    selectedAreas().map(areaById).filter(Boolean).forEach((area) => {
+      const text = (form.elements[`canDo__${area.id}`]?.value || restored[`canDo__${area.id}`] || "").trim();
+      list.append(element("li", "", `${area.label}: ${text || "Not written yet."}`));
     });
     root.append(list);
   }
@@ -148,33 +189,51 @@
 
   function buildFeedbackBlock(area, textarea) {
     const block = element("div", "feedback");
+    const header = element("div", "feedback-header");
     const button = document.createElement("button");
     button.type = "button";
     button.className = "button secondary feedback-check-button";
     button.textContent = "Check my can-do";
+    const badge = element("span", "feedback-badge");
+    header.append(button, badge);
     const feedbackStatus = element("p", "feedback-status");
     feedbackStatus.setAttribute("aria-live", "polite");
     const result = element("div", "feedback-result");
     result.hidden = true;
+    const flagWrap = element("div", "instructor-flag");
+    flagWrap.hidden = true;
+
+    updateChecksUI(area.id, badge, flagWrap);
 
     const cached = feedbackCache.get(area.id);
     if (cached && cached.text === textarea.value) {
       renderFeedbackResult(result, cached.result);
-      feedbackStatus.textContent = remainingMessage(cached.remaining);
     }
 
-    button.addEventListener("click", () => checkCanDo(area, textarea, feedbackStatus, result, button));
-    block.append(button, feedbackStatus, result);
+    button.addEventListener("click", () => checkCanDo(area, textarea, feedbackStatus, result, button, badge, flagWrap));
+    block.append(header, feedbackStatus, result, flagWrap);
     return block;
   }
 
-  function remainingMessage(remaining) {
-    return remaining > 0
-      ? `${remaining} check${remaining === 1 ? "" : "s"} left for this area this session.`
-      : "No checks left for this area this session.";
+  function updateChecksUI(areaId, badge, flagWrap) {
+    const remaining = checksRemainingByArea.has(areaId) ? checksRemainingByArea.get(areaId) : MAX_CHECKS_PER_SESSION_AREA;
+    badge.textContent = `${Math.max(remaining, 0)}/${MAX_CHECKS_PER_SESSION_AREA} checks remaining`;
+    if (remaining > 0) {
+      flagWrap.hidden = true;
+      return;
+    }
+    flagWrap.hidden = false;
+    if (flagWrap.querySelector("input")) return;
+    const label = document.createElement("label");
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.name = `instructorFlag__${areaId}`;
+    checkbox.checked = restored[`instructorFlag__${areaId}`] === "on";
+    label.append(checkbox, document.createTextNode(" I’d like some extra instructor feedback on this can-do statement."));
+    flagWrap.append(label);
   }
 
-  async function checkCanDo(area, textarea, statusEl, resultEl, button) {
+  async function checkCanDo(area, textarea, statusEl, resultEl, button, badge, flagWrap) {
     const text = textarea.value.trim();
     if (!text) {
       statusEl.textContent = "Write your can-do statement first.";
@@ -195,12 +254,20 @@
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
+        if (response.status === 429) {
+          checksRemainingByArea.set(area.id, 0);
+          updateChecksUI(area.id, badge, flagWrap);
+          save();
+        }
         statusEl.textContent = data.error || "Feedback isn't available right now.";
         return;
       }
-      feedbackCache.set(area.id, { text, result: data.feedback, remaining: data.checksRemaining });
+      feedbackCache.set(area.id, { text, result: data.feedback });
       renderFeedbackResult(resultEl, data.feedback);
-      statusEl.textContent = remainingMessage(data.checksRemaining);
+      checksRemainingByArea.set(area.id, data.checksRemaining);
+      updateChecksUI(area.id, badge, flagWrap);
+      statusEl.textContent = "";
+      save();
     } catch {
       statusEl.textContent = "Could not reach the feedback service. Your plan is unaffected.";
     } finally {
@@ -304,6 +371,7 @@
     const state = Object.fromEntries(new FormData(form).entries());
     state.selectedAreas = [...form.querySelectorAll('input[name="areas"]:checked')].map((input) => input.value);
     state.exportText = restored.exportText || "";
+    state.checksRemainingByArea = Object.fromEntries(checksRemainingByArea);
     return state;
   }
 
@@ -319,8 +387,9 @@
       const saved = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || "{}");
       restored = saved;
       currentStep = Math.max(1, Math.min(TOTAL_STEPS, Number(saved.currentStep) || 1));
+      checksRemainingByArea = new Map(Object.entries(saved.checksRemainingByArea || {}));
       Object.entries(saved).forEach(([name, value]) => {
-        if (name === "selectedAreas" || name === "currentStep" || name === "exportText") return;
+        if (name === "selectedAreas" || name === "currentStep" || name === "exportText" || name === "checksRemainingByArea") return;
         const fields = form.querySelectorAll(`[name="${CSS.escape(name)}"]`);
         fields.forEach((field) => {
           if (field.type === "checkbox") field.checked = value === field.value || value === "on";
@@ -341,6 +410,7 @@
     sessionStorage.removeItem(STORAGE_KEY);
     sessionStorage.removeItem(FEEDBACK_SESSION_KEY);
     feedbackCache.clear();
+    checksRemainingByArea.clear();
     lastAreaSignature = null;
     restored = {};
     form.reset();
@@ -351,17 +421,19 @@
 
   function buildExport() {
     const value = (name) => (form.elements[name]?.value || "").trim();
-    const canDos = selectedAreas().map((id) => `${areaById(id).label}:\n${value(`canDo__${id}`)}`).join("\n\n");
+    const flagged = (id) => !!form.elements[`instructorFlag__${id}`]?.checked;
+    const canDos = selectedAreas()
+      .map((id) => `${flagged(id) ? "! " : ""}${areaById(id).label}:\n${value(`canDo__${id}`)}`)
+      .join("\n\n");
     return [
       `Student: ${value("studentName")}`, `Course: ${value("course")}`, `Week: ${value("week")}`, `Language: ${value("language")}`,
       `Carry-forward reflection\n${value("reflection") || "Not provided."}`,
       `Topic and real-life context\nTopic: ${value("topic")}\nContext: ${value("context")}`,
       `Selected learning areas\n${selectedAreas().map((id) => areaById(id).label).join(", ")}`,
       `Student-authored can-do statements\n${canDos}`,
-      `Student-authored learning activities\n${value("activities")}`,
-      `Planned artifact/evidence\n${value("evidence")}`,
-      `Strategies and resources\n${value("strategies")}`,
-      `First-next-then action plan\n${value("actionPlan")}`
+      `Input plan\n${value("planInput")}`,
+      `Interaction and practice plan\n${value("planInteraction")}`,
+      `Production plan\n${value("planProduction")}`
     ].join("\n\n");
   }
 

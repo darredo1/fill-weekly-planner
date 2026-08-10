@@ -81,10 +81,16 @@ textarea { resize: vertical; }
 
 fieldset { margin: 1.2rem 0; padding: 1rem; border: 1px solid var(--line); border-radius: 10px; }
 legend { padding: 0 0.35rem; color: var(--unk-blue-deep); font-weight: 750; }
-.choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.2rem 1rem; }
-.choice-grid label, .locked-choice { flex-direction: row; align-items: center; font-weight: 500; }
-.locked-choice { padding: 0.45rem 0.6rem; border-left: 3px solid var(--unk-gold); border-radius: 6px; background: var(--unk-blue-pale); }
-.locked-choice span { margin-left: auto; color: var(--unk-blue-deep); font-size: 0.78rem; font-weight: 750; }
+
+.area-choice-cards { display: grid; gap: 0.85rem; margin: 0.5rem 0; }
+.area-choice-card { padding: 0.85rem 1rem; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.area-choice-card.locked { border-left: 3px solid var(--unk-gold); background: var(--unk-blue-pale); }
+.area-choice-header { flex-direction: row; align-items: center; margin: 0; font-weight: 700; }
+.area-choice-header input { width: auto; }
+.area-choice-name { color: var(--unk-blue-deep); }
+.required-tag { margin-left: auto; color: var(--unk-blue-deep); font-size: 0.78rem; font-weight: 750; }
+.area-choice-definition { margin: 0.5rem 0; font-weight: 400; color: var(--muted); font-size: 0.92rem; }
+.area-choice-examples { margin: 0.4rem 0 0; padding-left: 1.2rem; font-size: 0.88rem; color: var(--ink); }
 
 .area-guidance { display: grid; gap: 1rem; }
 .area-card { padding: 1rem; border: 1px solid var(--line); border-top: 0.3rem solid var(--unk-blue); border-radius: 12px; background: #fff; }
@@ -100,7 +106,9 @@ legend { padding: 0 0.35rem; color: var(--unk-blue-deep); font-weight: 750; }
 .can-do { margin-top: 0.85rem; }
 
 .feedback { margin-top: 0.6rem; }
+.feedback-header { flex-direction: row; align-items: center; gap: 0.6rem; margin: 0; }
 .feedback-check-button { padding: 0.5rem 0.85rem; font-size: 0.9rem; }
+.feedback-badge { padding: 0.25rem 0.6rem; border-radius: 999px; background: var(--unk-blue-pale); color: var(--unk-blue-deep); font-size: 0.8rem; font-weight: 700; white-space: nowrap; }
 .feedback-status { min-height: 1.3rem; margin: 0.4rem 0 0; color: var(--muted); font-size: 0.85rem; }
 .feedback-result { margin-top: 0.5rem; }
 .feedback-checks { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
@@ -111,12 +119,21 @@ legend { padding: 0 0.35rem; color: var(--unk-blue-deep); font-weight: 750; }
 .feedback-check.needs-work { border-left-color: var(--danger); }
 .feedback-note { margin: 0.4rem 0 0; padding: 0.6rem 0.75rem; border-left: 3px solid var(--danger); border-radius: 6px; background: var(--ground); font-size: 0.9rem; color: var(--muted); }
 
-.planning-cards { margin: 1.5rem 0; }
-.planning-cards h3 { margin-bottom: 0.25rem; color: var(--unk-blue-deep); }
-.card-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; }
-.planning-card { padding: 0.85rem; border: 1px solid #c9d8e3; border-top: 0.25rem solid var(--unk-gold); border-radius: 8px; background: #f7fafc; }
-.planning-card h4 { margin: 0 0 0.35rem; color: var(--unk-blue-deep); }
-.planning-card p { margin: 0; font-size: 0.9rem; }
+.instructor-flag { margin-top: 0.6rem; padding: 0.6rem 0.75rem; border-left: 3px solid var(--danger); border-radius: 6px; background: var(--unk-gold-pale); font-size: 0.9rem; }
+.instructor-flag label { flex-direction: row; align-items: center; margin: 0; font-weight: 500; }
+.instructor-flag input { width: auto; }
+
+.plan-recap { margin: 1rem 0 1.5rem; padding: 1rem; border-left: 0.35rem solid var(--unk-gold); border-radius: 10px; background: var(--unk-blue-pale); }
+.plan-recap strong { display: block; color: var(--unk-blue-deep); }
+.plan-recap ul { margin: 0.5rem 0 0; padding-left: 1.2rem; }
+
+.learning-plan-stages { display: grid; gap: 1.25rem; }
+.plan-stage { padding: 1rem; border: 1px solid #c9d8e3; border-top: 0.3rem solid var(--unk-gold); border-radius: 10px; background: #f7fafc; }
+.stage-day-range { margin: 0 0 0.2rem; color: var(--unk-blue); font-size: 0.78rem; font-weight: 750; letter-spacing: 0.08em; text-transform: uppercase; }
+.plan-stage h3 { margin: 0 0 0.4rem; color: var(--unk-blue-deep); }
+.plan-stage ul { margin: 0.5rem 0; padding-left: 1.2rem; font-size: 0.9rem; }
+.brainstorm-prompt { margin: 0.5rem 0; font-style: italic; color: var(--muted); }
+.plan-stage-field { margin-top: 0.6rem; }
 
 .navigation { display: flex; gap: 0.7rem; align-items: center; margin-top: 1.8rem; padding-top: 1rem; border-top: 1px solid var(--line); }
 .reset { margin-left: auto; }
@@ -141,7 +158,7 @@ footer { padding: 0 1rem 2rem; color: var(--muted); text-align: center; font-siz
   .progress { justify-items: center; }
   .progress li { font-size: 0; }
   .progress span { margin: 0; }
-  .field-grid, .choice-grid, .contrast { grid-template-columns: 1fr; }
+  .field-grid, .contrast { grid-template-columns: 1fr; }
   .planner-shell { padding: 1rem; }
   .navigation { flex-wrap: wrap; }
   .reset { margin-left: 0; }
