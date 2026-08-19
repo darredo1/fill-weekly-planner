@@ -186,7 +186,7 @@
         "Compare how ideas are expressed in your language and the target language."
       ],
       "brainstorm_prompt": "What are some ways I could find input of the language I need to make progress on my Can-Dos?",
-      "field_prompt": "For Input, I will",
+      "field_prompt": "For Input, list two or three activities you can do this week that can help you with your can-do goal",
       "field_name": "planInput",
       "source_document": "Making a learning plan",
       "source_section_or_page": "Can-do feedback / weekly planning training documentation",
@@ -210,7 +210,7 @@
         "Record yourself practicing a conversation and try again."
       ],
       "brainstorm_prompt": "What are some ways I could practice communicating to achieve my Weekly Can-Do?",
-      "field_prompt": "For Interaction and Practice, I will",
+      "field_prompt": "For Interaction and Practice, list two or three activities you can do this week that can help you with your can-do goal",
       "field_name": "planInteraction",
       "source_document": "Making a learning plan",
       "source_section_or_page": "Can-do feedback / weekly planning training documentation",
@@ -232,7 +232,7 @@
         "Create something that could be useful to another person."
       ],
       "brainstorm_prompt": "What could I create or present to show I can accomplish my Weekly Can-Do?",
-      "field_prompt": "For Production, I will",
+      "field_prompt": "For Production, list two or three activities you can do this week that can help you with your can-do goal",
       "field_name": "planProduction",
       "source_document": "Making a learning plan",
       "source_section_or_page": "Can-do feedback / weekly planning training documentation",
