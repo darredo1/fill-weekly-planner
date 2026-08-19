@@ -83,6 +83,7 @@ fieldset { margin: 1.2rem 0; padding: 1rem; border: 1px solid var(--line); borde
 legend { padding: 0 0.35rem; color: var(--unk-blue-deep); font-weight: 750; }
 
 .area-choice-cards { display: grid; gap: 0.85rem; margin: 0.5rem 0; }
+.area-choice-instruction { margin: 0; color: var(--unk-blue-deep); font-weight: 750; }
 .area-choice-card { padding: 0.85rem 1rem; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
 .area-choice-card.locked { border-left: 3px solid var(--unk-gold); background: var(--unk-blue-pale); }
 .area-choice-header { flex-direction: row; align-items: center; margin: 0; font-weight: 700; }

@@ -65,6 +65,7 @@
 
   function buildChoices() {
     const root = document.querySelector("#area-choice-cards");
+    const counter = document.querySelector("#area-counter");
     content.areas.forEach((area) => {
       const isRequired = area.id === REQUIRED_AREA;
       const card = element("article", `area-choice-card${isRequired ? " locked" : ""}`);
@@ -88,6 +89,7 @@
       (area.novice_examples || []).forEach((example) => list.append(element("li", "", example)));
       card.append(list);
       root.append(card);
+      if (isRequired) root.append(counter);
     });
   }
 
@@ -128,7 +130,7 @@
       ? "Two additional areas selected."
       : extra > 2
         ? "Choose only two additional areas."
-        : `Choose ${2 - extra} additional area${2 - extra === 1 ? "" : "s"}.`;
+        : `Choose ${2 - extra === 2 ? "two" : 2 - extra} additional area${2 - extra === 1 ? "" : "s"}.`;
     renderPlanRecap();
     // Only rebuild the area cards (and the "Check my can-do" buttons inside
     // them) when the selected areas actually change. This handler fires on
@@ -169,7 +171,7 @@
       card.append(checks);
       const label = document.createElement("label");
       label.className = "can-do";
-      label.append(document.createTextNode(`Your can-do for ${area.label}`));
+      label.append(document.createTextNode(`Your can-do goal for ${area.label}`));
       const textarea = document.createElement("textarea");
       textarea.name = `canDo__${area.id}`;
       textarea.required = true;
