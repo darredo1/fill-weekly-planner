@@ -37,7 +37,6 @@
       content = await response.json();
       buildChoices();
       renderLearningPlanStages();
-      populateStaticGuidance();
       restore();
       bindEvents();
       render();
@@ -115,10 +114,6 @@
       section.append(label);
       root.append(section);
     });
-  }
-
-  function populateStaticGuidance() {
-    document.querySelector("#reflection-hint").textContent = `Reflection prompts: ${content.reflection_prompts.join(" ")}`;
   }
 
   function selectedAreas() {
@@ -429,7 +424,6 @@
       .join("\n\n");
     return [
       `Student: ${value("studentName")}`, `Course: ${value("course")}`, `Week: ${value("week")}`, `Language: ${value("language")}`,
-      `Carry-forward reflection\n${value("reflection") || "Not provided."}`,
       `Topic and real-life context\nTopic: ${value("topic")}\nContext: ${value("context")}`,
       `Selected learning areas\n${selectedAreas().map((id) => areaById(id).label).join(", ")}`,
       `Student-authored can-do statements\n${canDos}`,
