@@ -22,10 +22,9 @@ and analytics-data handling and complete any required institutional review.
 
 ## Checkpoint 1 — Web Analytics beacon
 
-1. Create the production site in Cloudflare Web Analytics and obtain its
-   public token.
-2. Uncomment the beacon in `public/index.html`, replace the token placeholder,
-   and deploy the preview.
+1. Confirm the Cloudflare Web Analytics site exists for `darredo1.github.io`
+   and the public token in `public/index.html` matches its managed snippet.
+2. Deploy the preview with the beacon enabled.
 3. Complete every baseline row in preview. Confirm no CSP or console error.
 4. Deploy production only after preview passes; repeat every baseline row and
    confirm a page-view signal in Cloudflare.
