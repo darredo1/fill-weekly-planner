@@ -1,6 +1,6 @@
 # FILL Weekly Planner V2
 
-A privacy-first, static planning wizard for students. It helps students author a weekly plan, then export it for submission in Canvas. This repository intentionally contains no student submissions, raw source materials, credentials, analytics, or backend services.
+A privacy-first, static planning wizard for students. It helps students author a weekly plan, then export it for submission in Canvas. This repository intentionally contains no student submissions, raw source materials, credentials, or student-level analytics.
 
 ## Local preview
 
@@ -26,8 +26,14 @@ Use only short, adapted, reviewed content. Do not commit raw FILL/ACTFL working 
 
 The application uses browser `sessionStorage` only; plans are cleared when the browser session ends or the student selects Reset. Canvas is the submission and feedback channel.
 
+The code includes optional aggregate interaction counts for planner opens, completed steps, copies, downloads, and AI-feedback requests/completions. Telemetry is disabled in the client by default, separately from the feedback feature. Before enabling it, review Cloudflare's handling and retention of Worker request metadata and Analytics Engine data, and complete any required institutional review. When enabled, the custom telemetry payload is limited to an allowlisted event name and, for completed steps, a number from 1–5. It contains no plan content, student information, course, proficiency level, identifiers, or session tokens. Keep reporting in Cloudflare; do not export the counts, join them with Canvas, or break them down by course, level, or session.
+
 The one exception: if a student clicks "Check my can-do" in step 3, that single can-do statement's text (and the learning area it belongs to) is sent to a separate feedback service (`worker/`) to get AI-generated feedback against the same rubric shown on screen. No other field — name, course, week, topic, activities, or any other statement — is included in that request, and the request is not required to complete or export a plan. See `worker/README.md` for how that service is configured and what it does and does not retain.
 
 This repository must never contain student or project-member PII, completed plans, Canvas exports, feedback, raw sources, credentials, or local working notes. Use only synthetic examples and reviewed public guidance. See [CONTRIBUTING.md](CONTRIBUTING.md) for the mandatory privacy rule and pull-request checks.
 
 Use feature branches and pull requests. The GitHub Actions workflow validates the static files and deploys only `public/` after changes reach the protected `main` branch. In the GitHub repository, set Pages to deploy with **GitHub Actions** and record the default `https://darredo1.github.io/fill-weekly-planner/` URL here after the first deployment. Keep the GitHub repository private only if the account plan supports Pages for private repositories; the Pages site itself is public.
+
+## Production analytics release gate
+
+Review Cloudflare's data handling and retention and complete any required institutional review before enabling analytics. Create the Cloudflare Web Analytics site and its public beacon token in the dashboard, then uncomment the beacon tag in `public/index.html` and replace its token placeholder. Enable custom events separately by changing `TELEMETRY_ENABLED` in `public/assets/app.js` only after that review. Deploy a preview first and verify the planner, guidance, five-step flow, session storage, copy/download, and Claude feedback before production. Then verify the page-view signal and, if enabled, the `fill_weekly_planner_telemetry` dataset in Cloudflare. Do not enable the beacon with a placeholder token.

@@ -8,5 +8,11 @@ kv_namespaces = [
   { binding = "RATE_LIMIT_KV", id = "5e2e95ee12ea4c46badd69c5b3652992" }
 ]
 
+# Aggregate-only interaction counts. This dataset must not be reused for
+# request logs, identifiers, plan text, or any student/course attributes.
+[[analytics_engine_datasets]]
+binding = "TELEMETRY"
+dataset = "fill_weekly_planner_telemetry"
+
 # Secrets (never put these in this file):
 #   wrangler secret put ANTHROPIC_API_KEY

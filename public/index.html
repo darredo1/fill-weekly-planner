@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="A private-in-your-browser weekly planning wizard for language learners.">
-  <!-- connect-src's second origin is the can-do feedback worker. Keep it in sync with
-       FEEDBACK_ENDPOINT in assets/app.js and with worker/README.md. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self' https://fill-weekly-planner-feedback.darredo1.workers.dev; img-src 'self' data:; base-uri 'self'; form-action 'self'">
+  <!-- The Worker origin serves both can-do feedback and aggregate telemetry. Keep it in
+       sync with FEEDBACK_ENDPOINT in assets/app.js and with worker/README.md. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self' https://static.cloudflareinsights.com; connect-src 'self' https://fill-weekly-planner-feedback.darredo1.workers.dev https://cloudflareinsights.com; img-src 'self' data:; base-uri 'self'; form-action 'self'">
   <title>FILL Weekly Planner</title>
   <link rel="stylesheet" href="assets/styles.css">
 </head>
@@ -23,7 +23,7 @@
       <img class="department-lockup" src="assets/modern-languages-international-studies-blue.png" alt="UNK Modern Languages &amp; International Studies">
       <aside class="privacy-note" aria-label="Privacy notice">
         <h2>Your plan stays in this browser session</h2>
-        <p>This site uses session-only browser storage to preserve your work while you move between steps. It does not send, retain, or collect your plan. Submit your finished export in Canvas, where feedback happens.</p>
+        <p>This site uses session-only browser storage to preserve your work while you move between steps. It does not send, retain, or collect your plan. It collects anonymous aggregate interaction counts, never plan content, identities, courses, proficiency levels, or session identifiers. Submit your finished export in Canvas, where feedback happens.</p>
       </aside>
     </div>
   </header>
@@ -114,6 +114,10 @@
     </form>
   </main>
   <footer>FILL Weekly Planner · Plan here, submit and receive feedback in Canvas.</footer>
+  <!-- Before production deployment, create this site's Cloudflare Web Analytics token
+       and replace REPLACE-WITH-CLOUDFLARE-WEB-ANALYTICS-TOKEN below. The token is a
+       public site identifier, not a secret. Do not deploy this tag until it is set. -->
+  <!-- <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"REPLACE-WITH-CLOUDFLARE-WEB-ANALYTICS-TOKEN"}'></script> -->
   <script src="assets/app.js" defer></script>
 </body>
 </html>

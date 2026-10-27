@@ -38,6 +38,26 @@ workflow.
 Only the can-do statement text and the area id leave the browser — no name,
 week, course, or other plan fields are ever sent.
 
+## Aggregate telemetry
+
+`POST /telemetry` is separate from the feedback route. It accepts exactly one
+of six allowlisted event names (`planner_open`, `step_completed`,
+`export_copied`, `export_downloaded`, `ai_feedback_requested`, or
+`ai_feedback_completed`) and only permits `step: 1` through `5` for
+`step_completed`. Extra fields are rejected. The Worker writes only the event
+name and step number to the `fill_weekly_planner_telemetry` Analytics Engine
+dataset. The custom payload and dataset point contain no plan text, student
+data, course, proficiency level, identifiers, or session tokens. Cloudflare
+still processes request transport metadata at its edge; this application-level
+allowlist does not describe Cloudflare's platform logging or retention.
+
+The browser sends these requests best-effort; telemetry failures do not affect
+planning, exports, or feedback. Keep reporting in the Cloudflare dashboard
+only. Do not export or join it with Canvas data. Client telemetry is disabled
+by default. Review Cloudflare's request-metadata and Analytics Engine handling
+and complete any required institutional review before enabling it or deploying
+the telemetry endpoint for production use.
+
 ## Setup
 
 ```sh
@@ -53,6 +73,7 @@ cp .dev.vars.example .dev.vars
 # edit .dev.vars and set your real ANTHROPIC_API_KEY
 
 npm run dev
+npm test
 ```
 
 ## Deploy

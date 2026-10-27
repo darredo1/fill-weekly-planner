@@ -31,6 +31,8 @@ jobs:
           test -f public/data/planner-guidance.json
           python3 -m json.tool public/data/planner-guidance.json > /dev/null
           node --check public/assets/app.js
+          node --check worker/src/index.js
+          node worker/test/telemetry.test.js
 
   deploy:
     needs: validate

@@ -10,6 +10,10 @@
   // to a real deployed worker URL.
   const FEEDBACK_ENDPOINT = "https://fill-weekly-planner-feedback.darredo1.workers.dev";
   const FEEDBACK_ENABLED = !FEEDBACK_ENDPOINT.includes("REPLACE-WITH");
+  // Keep telemetry off until the Cloudflare handling/retention review and
+  // preview release gate are complete. This is independent of feedback.
+  const TELEMETRY_ENDPOINT = `${FEEDBACK_ENDPOINT}/telemetry`;
+  const TELEMETRY_ENABLED = false;
   const FEEDBACK_SESSION_KEY = "fill-weekly-planner-feedback-session-v1";
   const MAX_CAN_DO_LENGTH = 500;
   const MAX_CHECKS_PER_SESSION_AREA = 3;
@@ -27,6 +31,7 @@
   let content;
   let currentStep = 1;
   let restored = {};
+  const completedSteps = new Set();
 
   init();
 
@@ -40,6 +45,7 @@
       restore();
       bindEvents();
       render();
+      track("planner_open");
     } catch (error) {
       status.textContent = "The planning guidance could not load. Refresh the page or contact your instructor.";
       nextButton.disabled = true;
@@ -244,6 +250,7 @@
     button.disabled = true;
     statusEl.textContent = "Checking…";
     resultEl.hidden = true;
+    track("ai_feedback_requested");
     try {
       const response = await fetch(FEEDBACK_ENDPOINT, {
         method: "POST",
@@ -262,6 +269,7 @@
         return;
       }
       feedbackCache.set(area.id, { text, result: data.feedback });
+      track("ai_feedback_completed");
       renderFeedbackResult(resultEl, data.feedback);
       checksRemainingByArea.set(area.id, { remaining: data.checksRemaining, max: data.checksMax || MAX_CHECKS_PER_SESSION_AREA });
       updateChecksUI(area.id, badge, flagWrap);
@@ -326,7 +334,14 @@
 
   function next() {
     if (!validateStep(currentStep)) return;
+    recordStepCompletion(currentStep);
     if (currentStep < TOTAL_STEPS) goTo(currentStep + 1);
+  }
+
+  function recordStepCompletion(step) {
+    if (completedSteps.has(step)) return;
+    completedSteps.add(step);
+    track("step_completed", step);
   }
 
   function goTo(step) {
@@ -410,6 +425,7 @@
     sessionStorage.removeItem(FEEDBACK_SESSION_KEY);
     feedbackCache.clear();
     checksRemainingByArea.clear();
+    completedSteps.clear();
     lastAreaSignature = null;
     restored = {};
     form.reset();
@@ -437,9 +453,11 @@
 
   async function copyExport() {
     if (!validateStep(TOTAL_STEPS)) return;
+    recordStepCompletion(TOTAL_STEPS);
     try {
       await navigator.clipboard.writeText(exportText.value);
       status.textContent = "Copied. Paste this into Canvas.";
+      track("export_copied");
     } catch {
       exportText.select();
       document.execCommand("copy");
@@ -449,6 +467,7 @@
 
   function downloadExport() {
     if (!validateStep(TOTAL_STEPS)) return;
+    recordStepCompletion(TOTAL_STEPS);
     const text = exportText.value || buildExport();
     const blob = new Blob([text], { type: "text/plain" });
     const link = document.createElement("a");
@@ -457,5 +476,21 @@
     link.click();
     URL.revokeObjectURL(link.href);
     status.textContent = "Downloaded the same text shown for Canvas.";
+    track("export_downloaded");
+  }
+
+  function track(event, step) {
+    if (!TELEMETRY_ENABLED) return;
+    const payload = step === undefined ? { event } : { event, step };
+    // Telemetry is deliberately best-effort: an outage must never block
+    // navigation, export, storage, or Claude feedback.
+    try {
+      fetch(TELEMETRY_ENDPOINT, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+        keepalive: true,
+      }).catch(() => {});
+    } catch { /* Analytics is optional. */ }
   }
 })();

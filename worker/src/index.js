@@ -10,6 +10,15 @@ const MAX_CHECKS_PER_SESSION_AREA = 3;
 const SESSION_LIMIT_TTL_SECONDS = 60 * 60 * 2;
 const MODEL = "claude-haiku-4-5-20251001";
 const ANTHROPIC_VERSION = "2023-06-01";
+const TELEMETRY_PATH = "/telemetry";
+const TELEMETRY_EVENTS = new Set([
+  "planner_open",
+  "step_completed",
+  "export_copied",
+  "export_downloaded",
+  "ai_feedback_requested",
+  "ai_feedback_completed",
+]);
 
 const FEEDBACK_TOOL = {
   name: "submit_feedback",
@@ -41,6 +50,9 @@ export default {
     const origin = request.headers.get("Origin");
 
     if (request.method === "OPTIONS") return handlePreflight(origin);
+    if (new URL(request.url).pathname === TELEMETRY_PATH) {
+      return handleTelemetry(request, env, ctx, origin);
+    }
     if (request.method !== "POST") return json({ error: "Method not allowed" }, 405, origin);
     if (!ALLOWED_ORIGINS.has(origin)) return json({ error: "Origin not allowed" }, 403, origin);
 
@@ -97,6 +109,52 @@ export default {
     );
   },
 };
+
+async function handleTelemetry(request, env, ctx, origin) {
+  if (request.method !== "POST") return json({ error: "Method not allowed" }, 405, origin);
+  if (!ALLOWED_ORIGINS.has(origin)) return json({ error: "Origin not allowed" }, 403, origin);
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: "Invalid JSON body" }, 400, origin);
+  }
+
+  const validationError = validateTelemetry(body);
+  if (validationError) return json({ error: validationError }, 400, origin);
+
+  // Analytics Engine receives only the allowlisted event name and, where
+  // applicable, the wizard step. Do not add IP-derived, session, plan, or
+  // student fields here.
+  if (!env.TELEMETRY || typeof env.TELEMETRY.writeDataPoint !== "function") {
+    return json({ error: "Telemetry is unavailable" }, 503, origin);
+  }
+  const point = {
+    blobs: [body.event],
+    doubles: [body.step ?? 0],
+  };
+  try {
+    const write = env.TELEMETRY.writeDataPoint(point);
+    if (write && typeof write.then === "function") ctx.waitUntil(write);
+  } catch {
+    return json({ error: "Telemetry is unavailable" }, 503, origin);
+  }
+  return new Response(null, { status: 204, headers: corsHeaders(origin) });
+}
+
+function validateTelemetry(body) {
+  if (!body || typeof body !== "object" || Array.isArray(body)) return "Invalid telemetry body";
+  const keys = Object.keys(body);
+  if (!keys.every((key) => key === "event" || key === "step")) return "Unexpected telemetry field";
+  if (!TELEMETRY_EVENTS.has(body.event)) return "Unknown telemetry event";
+  if (body.step !== undefined && (!Number.isInteger(body.step) || body.step < 1 || body.step > 5)) {
+    return "Invalid telemetry step";
+  }
+  if (body.event === "step_completed" && body.step === undefined) return "step is required for step_completed";
+  if (body.event !== "step_completed" && body.step !== undefined) return "step is only allowed for step_completed";
+  return null;
+}
 
 function validateInput(areaId, canDoText, sessionId) {
   if (typeof areaId !== "string" || !areaId) return "areaId is required";
@@ -206,6 +264,8 @@ function handlePreflight(origin) {
     },
   });
 }
+
+export { validateTelemetry };
 
 function corsHeaders(origin) {
   return origin && ALLOWED_ORIGINS.has(origin) ? { "Access-Control-Allow-Origin": origin } : {};
